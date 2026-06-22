@@ -1,0 +1,7 @@
+{
+  "name": "pi-web-search-safe",
+  "private": true,
+  "pi": {
+    "extensions": ["./index.ts"]
+  }
+}
