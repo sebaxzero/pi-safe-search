@@ -10,10 +10,10 @@ Most Pi web search extensions pass raw web content straight to the LLM. Web page
 pi install git:github.com/sebaxzero/pi-safe-search.git
 ```
 
-Or try it without installing:
+Or install project-locally (adds to `.pi/settings.json` only):
 
 ```bash
-pi -e git:github.com/sebaxzero/pi-safe-search.git
+pi install git:github.com/sebaxzero/pi-safe-search.git -l
 ```
 
 ## How it works
