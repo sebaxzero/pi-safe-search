@@ -1,8 +1,8 @@
 {
   "name": "pi-safe-search",
   "version": "1.0.0",
-  "description": "Pi extension that adds safe web search and fetch tools with prompt injection protection",
-  "keywords": ["pi-package"],
+  "description": "Pi extension: web_search and web_fetch with 8-stage prompt-injection sanitization and SSRF protection. Zero dependencies.",
+  "keywords": ["pi-package", "pi", "pi-coding-agent", "extension", "web-search", "web-fetch", "security", "prompt-injection", "ssrf"],
   "license": "MIT",
   "pi": {
     "extensions": ["./extensions"]
