@@ -5,6 +5,7 @@
   "keywords": ["pi-package", "pi", "pi-coding-agent", "extension", "web-search", "web-fetch", "security", "prompt-injection", "ssrf"],
   "license": "MIT",
   "pi": {
-    "extensions": ["./extensions"]
+    "extensions": ["./extensions"],
+    "skills": ["./skills"]
   }
 }
