@@ -3,13 +3,16 @@ import { Type } from "typebox";
 import { sanitize, wrapUntrusted } from "./sanitize.ts";
 import { duckduckgoSearch } from "./search.ts";
 import { safeFetch } from "./fetch.ts";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 // Loaded from sibling JSON at startup; /set overrides for the current session only
 const cfg = (() => {
   const defaults = { MAX_RESULTS: 5 };
   try {
-    const url = new URL("safe-search.json", import.meta.url);
-    return { ...defaults, ...JSON.parse((globalThis as any).Deno.readTextFileSync(url)) };
+    const extDir = dirname(fileURLToPath(import.meta.url));
+    return { ...defaults, ...JSON.parse(readFileSync(join(extDir, "safe-search.json"), "utf-8")) };
   } catch {
     return defaults;
   }
