@@ -8,8 +8,8 @@ import { safeFetch } from "./fetch.ts";
 const cfg = (() => {
   const defaults = { MAX_RESULTS: 5 };
   try {
-    const path = new URL("safe-search.json", import.meta.url).pathname;
-    return { ...defaults, ...JSON.parse((globalThis as any).Deno.readTextFileSync(path)) };
+    const url = new URL("safe-search.json", import.meta.url);
+    return { ...defaults, ...JSON.parse((globalThis as any).Deno.readTextFileSync(url)) };
   } catch {
     return defaults;
   }
