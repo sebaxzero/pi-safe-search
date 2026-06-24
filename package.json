@@ -4,6 +4,14 @@
   "description": "Pi extension: web_search and web_fetch with 8-stage prompt-injection sanitization and SSRF protection. Zero dependencies.",
   "keywords": ["pi-package", "pi", "pi-coding-agent", "extension", "web-search", "web-fetch", "security", "prompt-injection", "ssrf"],
   "license": "MIT",
+  "homepage": "https://github.com/sebaxzero/pi-safe-search",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebaxzero/pi-safe-search.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sebaxzero/pi-safe-search/issues"
+  },
   "pi": {
     "extensions": ["./extensions"],
     "skills": ["./skills"]
