@@ -4,6 +4,17 @@ import { sanitize, wrapUntrusted } from "./sanitize.ts";
 import { duckduckgoSearch } from "./search.ts";
 import { safeFetch } from "./fetch.ts";
 
+// Loaded from sibling JSON at startup; /set overrides for the current session only
+const cfg = (() => {
+  const defaults = { MAX_RESULTS: 5 };
+  try {
+    const path = new URL("safe-search.json", import.meta.url).pathname;
+    return { ...defaults, ...JSON.parse((globalThis as any).Deno.readTextFileSync(path)) };
+  } catch {
+    return defaults;
+  }
+})();
+
 export default function (pi: ExtensionAPI) {
   // Reinforce the untrusted-data boundary in the system prompt every turn
   pi.on("before_agent_start", (event) => ({
@@ -47,7 +58,7 @@ export default function (pi: ExtensionAPI) {
       ),
     }),
     async execute(_id, params, signal) {
-      const results = await duckduckgoSearch(params.query, params.max_results ?? 5, signal);
+      const results = await duckduckgoSearch(params.query, params.max_results ?? cfg.MAX_RESULTS, signal);
 
       if (results.length === 0) {
         return { content: [{ type: "text", text: "No results found." }], details: {} };
@@ -85,6 +96,43 @@ export default function (pi: ExtensionAPI) {
         content: [{ type: "text", text: wrapUntrusted(text) }],
         details: {},
       };
+    },
+  });
+
+  pi.registerCommand("safe-search", {
+    description: "Show status; /safe-search set KEY=VAL [KEY=VAL ...]",
+    handler: (args, ctx) => {
+      const trimmed = args?.trim() ?? "";
+
+      if (trimmed.startsWith("set ")) {
+        const results: string[] = [];
+        for (const pair of trimmed.slice(4).trim().split(/\s+/)) {
+          const eq = pair.indexOf("=");
+          const key = pair.slice(0, eq).toUpperCase();
+          const val = pair.slice(eq + 1);
+          if (eq > 0 && val !== "") {
+            if (key === "MAX_RESULTS") {
+              const n = parseInt(val, 10);
+              if (n >= 1 && n <= 10) { cfg.MAX_RESULTS = n; results.push(`MAX_RESULTS=${cfg.MAX_RESULTS}`); }
+              else results.push(`invalid MAX_RESULTS: ${val} (1–10)`);
+            } else {
+              results.push(`unknown: ${key}`);
+            }
+          }
+        }
+        ctx.ui.notify(`Safe Search: ${results.join(", ")}`, "info");
+        return;
+      }
+
+      ctx.ui.notify(
+        [
+          "Safe Search status",
+          "",
+          "  config (/set = session only; edit safe-search.json for persistence):",
+          `    MAX_RESULTS=${cfg.MAX_RESULTS}`,
+        ].join("\n"),
+        "info"
+      );
     },
   });
 }
