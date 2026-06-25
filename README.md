@@ -72,6 +72,29 @@ Parameters:
 Parameters:
 - `url` (required) — must be http or https
 
+## Configuration
+
+Persistent configuration lives in `extensions/safe-search.json` (auto-created on first load with defaults). You can ask the agent to edit it directly:
+
+```json
+{
+  "MAX_RESULTS": 5
+}
+```
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `MAX_RESULTS` | `5` | Default number of search results returned by `web_search` (1–10) |
+
+Changes to the JSON take effect on the next session. For live tuning within a session, use the command below.
+
+## Command
+
+```
+/safe-search                 — show current status and config
+/safe-search set KEY=VAL     — override config for the current session only
+```
+
 ## Dependencies
 
 None. No `node_modules`. No `package.json` dependencies. Uses only `node:dns/promises` (built into Node.js) for hostname resolution in SSRF checks.

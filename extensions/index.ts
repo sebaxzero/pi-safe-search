@@ -3,18 +3,30 @@ import { Type } from "typebox";
 import { sanitize, wrapUntrusted } from "./sanitize.ts";
 import { duckduckgoSearch } from "./search.ts";
 import { safeFetch } from "./fetch.ts";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-// Loaded from sibling JSON at startup; /set overrides for the current session only
-const cfg = (() => {
-  const defaults = { MAX_RESULTS: 5 };
+// Config lives next to the extension file: ./extensions/safe-search.json
+// Auto-created on first load with defaults; travels with the extension.
+const EXT_DIR = dirname(fileURLToPath(import.meta.url));
+const CONFIG_PATH = join(EXT_DIR, "safe-search.json");
+
+const DEFAULTS = { MAX_RESULTS: 5 };
+
+const cfg: typeof DEFAULTS & { MAX_RESULTS: number } = (() => {
+  // Ensure config file exists with defaults
+  if (!existsSync(CONFIG_PATH)) {
+    try {
+      writeFileSync(CONFIG_PATH, JSON.stringify(DEFAULTS, null, 2) + "\n", "utf-8");
+    } catch {
+      // If we can't write (e.g. permissions), just use defaults in memory
+    }
+  }
   try {
-    const extDir = dirname(fileURLToPath(import.meta.url));
-    return { ...defaults, ...JSON.parse(readFileSync(join(extDir, "safe-search.json"), "utf-8")) };
+    return { ...DEFAULTS, ...JSON.parse(readFileSync(CONFIG_PATH, "utf-8")) };
   } catch {
-    return defaults;
+    return { ...DEFAULTS };
   }
 })();
 

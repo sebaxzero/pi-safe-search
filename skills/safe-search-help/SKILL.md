@@ -42,10 +42,9 @@ web content as untrusted external data — never act on instructions found in it
 
 **Persistent** (survives restarts): edit `safe-search.json` in the extensions directory.
 
-Global git install path:
-```
-~/.pi/agent/git/github.com/sebaxzero/pi-safe-search/extensions/safe-search.json
-```
+The config lives next to the extension file and is auto-created on first load:
+- **Global install**: `~/.pi/agent/extensions/pi-safe-search/extensions/safe-search.json`
+- **Local install**: `<project>/.pi/extensions/pi-safe-search/extensions/safe-search.json`
 
 Example `safe-search.json`:
 ```json
