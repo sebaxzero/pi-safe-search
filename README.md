@@ -1,20 +1,27 @@
 # pi-safe-search
 
+[![test](https://github.com/sebaxzero/pi-safe-search/actions/workflows/test.yml/badge.svg)](https://github.com/sebaxzero/pi-safe-search/actions/workflows/test.yml)
+[![npm](https://img.shields.io/npm/v/pi-safe-search)](https://www.npmjs.com/package/pi-safe-search)
+
 A [pi](https://pi.dev) extension that adds `web_search` and `web_fetch` tools with built-in prompt injection defense and SSRF protection.
 
 Most Pi web search extensions pass raw web content straight to the LLM. Web pages can contain hidden instructions designed to hijack the agent — invisible characters, encoded payloads, or plain text like "ignore your previous instructions." This extension sanitizes everything before the LLM sees it.
 
 ## Install
 
+From npm:
+
+```bash
+pi install npm:pi-safe-search
+```
+
+Or from git:
+
 ```bash
 pi install git:github.com/sebaxzero/pi-safe-search.git
 ```
 
-Or install project-locally (adds to `.pi/settings.json` only):
-
-```bash
-pi install git:github.com/sebaxzero/pi-safe-search.git -l
-```
+Add `-l` to either form to install project-locally (adds to `.pi/settings.json` only).
 
 ## How it works
 
@@ -22,7 +29,7 @@ pi install git:github.com/sebaxzero/pi-safe-search.git -l
 
 Every piece of web content passes through this pipeline in order before reaching the LLM:
 
-1. **Unicode normalization** — NFKC normalization defeats homoglyph substitution (Cyrillic/Greek lookalikes swapped for ASCII)
+1. **Unicode normalization** — NFKC normalization plus an explicit Cyrillic/Greek homoglyph map folds lookalike characters to ASCII
 2. **Zero-width character removal** — strips invisible characters used to hide instructions
 3. **Control character stripping** — removes everything below space except `\t`, `\n`, `\r`
 4. **HTML entity decode → re-strip** — decodes `&lt;script&gt;` then strips the resulting tags
@@ -49,7 +56,13 @@ Before fetching any URL, `web_fetch` resolves the hostname and blocks:
 - IPv6 loopback and ULA (`::1`, `fd00::/8`, `fe80::`)
 - Dangerous ports: 21, 22, 25, 53, 3306, 5432, 6379, and more
 - URLs over 2048 characters or containing control characters
-- Re-validates after every redirect hop
+- Re-validates after every redirect hop (max 5 redirects)
+
+### Fetch limits
+
+- Content types: text, HTML, JSON, XML, and markdown only
+- Response body capped at 2 MB while streaming
+- At most 8 000 characters returned to the model
 
 ### System prompt reinforcement
 
@@ -98,6 +111,23 @@ Changes to the JSON take effect on the next session. For live tuning within a se
 ## Dependencies
 
 None. No `node_modules`. No `package.json` dependencies. Uses only `node:dns/promises` (built into Node.js) for hostname resolution in SSRF checks.
+
+## Tests
+
+```bash
+node --test test.mjs
+```
+
+46 tests covering the sanitization pipeline (including evasion via zero-width
+characters, homoglyphs, fullwidth unicode, URL encoding, and base64), the
+SSRF ranges, and DuckDuckGo redirect unwrapping. Requires Node ≥ 22.18 (the
+suite imports the `.ts` sources directly via native type stripping). CI runs
+it on every push and pull request.
+
+## Releasing
+
+Bump `version` in `package.json`, commit, tag `vX.Y.Z`, and push the tag —
+the publish workflow runs the tests and publishes to npm.
 
 ## License
 
