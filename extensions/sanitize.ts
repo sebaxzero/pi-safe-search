@@ -17,8 +17,8 @@ const BASE64_BLOB = /(?:[A-Za-z0-9+/]{4}){5,}[A-Za-z0-9+/]{0,3}={0,2}/g;
 // Injection pattern categories (key subset of OpenLumara's ~70 patterns)
 const INJECTION_PATTERNS: RegExp[] = [
   // Override directives
-  /ignore\s+(all\s+|previous\s+|above\s+|prior\s+)?instructions?/gi,
-  /disregard\s+(all\s+|previous\s+|above\s+)?(?:instructions?|rules?|guidelines?)/gi,
+  /ignore\s+(?:(?:all|previous|above|prior|the)\s+)*instructions?/gi,
+  /disregard\s+(?:(?:all|previous|above|the)\s+)*(?:instructions?|rules?|guidelines?)/gi,
   /forget\s+(?:what\s+you\s+(?:were|are)\s+told|your\s+instructions?|everything)/gi,
   /override\s+(?:your\s+)?(?:previous\s+)?(?:instructions?|programming|constraints?|safety|filters?)/gi,
   /(?:do\s+not|don't)\s+(?:follow|obey|adhere\s+to)\s+(?:your\s+)?(?:previous\s+)?instructions?/gi,

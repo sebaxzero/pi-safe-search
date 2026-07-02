@@ -12,6 +12,10 @@
   "bugs": {
     "url": "https://github.com/sebaxzero/pi-safe-search/issues"
   },
+  "type": "module",
+  "scripts": {
+    "test": "node --test test.mjs"
+  },
   "pi": {
     "extensions": ["./extensions"],
     "skills": ["./skills"]
