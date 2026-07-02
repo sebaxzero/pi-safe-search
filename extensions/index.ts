@@ -14,7 +14,7 @@ const CONFIG_PATH = join(EXT_DIR, "safe-search.json");
 
 const DEFAULTS = { MAX_RESULTS: 5 };
 
-const cfg: typeof DEFAULTS & { MAX_RESULTS: number } = (() => {
+const cfg: typeof DEFAULTS = (() => {
   // Ensure config file exists with defaults
   if (!existsSync(CONFIG_PATH)) {
     try {
