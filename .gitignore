@@ -4,3 +4,6 @@ package-lock.json
 # Runtime config ? auto-created next to the extension on first load; user-edited,
 # so it must never be tracked (a tracked copy gets clobbered on pi update)
 extensions/safe-search.json
+
+# Tests are local-only (not published, not run in CI)
+test.mjs
