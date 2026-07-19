@@ -115,9 +115,19 @@ export default function (pi: ExtensionAPI) {
   });
 
   pi.registerCommand("safe-search", {
-    description: "Show status; /safe-search set KEY=VAL [KEY=VAL ...]",
+    description: "Show status; /safe-search set KEY=VAL [KEY=VAL ...]; /safe-search save",
     handler: (args, ctx) => {
       const trimmed = args?.trim() ?? "";
+
+      if (trimmed === "save") {
+        try {
+          writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2) + "\n", "utf-8");
+          ctx.ui.notify(`Safe Search: saved ${CONFIG_PATH}`, "info");
+        } catch (e) {
+          ctx.ui.notify(`Safe Search: could not save: ${e}`, "error");
+        }
+        return;
+      }
 
       if (trimmed.startsWith("set ")) {
         const results: string[] = [];
@@ -135,7 +145,7 @@ export default function (pi: ExtensionAPI) {
             }
           }
         }
-        ctx.ui.notify(`Safe Search: ${results.join(", ")}`, "info");
+        ctx.ui.notify(`Safe Search: ${results.join(", ")} (session only; /safe-search save to persist)`, "info");
         return;
       }
 
@@ -143,7 +153,7 @@ export default function (pi: ExtensionAPI) {
         [
           "Safe Search status",
           "",
-          "  config (/set = session only; edit safe-search.json for persistence):",
+          "  config (/set = session only; /safe-search save to persist):",
           `    MAX_RESULTS=${cfg.MAX_RESULTS}`,
         ].join("\n"),
         "info"
