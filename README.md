@@ -1,11 +1,10 @@
 # pi-safe-search
 
-[![test](https://github.com/sebaxzero/pi-safe-search/actions/workflows/test.yml/badge.svg)](https://github.com/sebaxzero/pi-safe-search/actions/workflows/test.yml)
 [![npm](https://img.shields.io/npm/v/pi-safe-search)](https://www.npmjs.com/package/pi-safe-search)
 
 A [pi](https://pi.dev) extension that adds `web_search` and `web_fetch` tools with built-in prompt injection defense and SSRF protection.
 
-Most Pi web search extensions pass raw web content straight to the LLM. Web pages can contain hidden instructions designed to hijack the agent — invisible characters, encoded payloads, or plain text like "ignore your previous instructions." This extension sanitizes everything before the LLM sees it.
+Most pi web search extensions pass raw web content straight to the LLM. Web pages can contain hidden instructions designed to hijack the agent — invisible characters, encoded payloads, or plain text like "ignore your previous instructions." This extension sanitizes everything before the LLM sees it, and blocks fetches that could reach your internal network.
 
 ## Install
 
@@ -22,6 +21,21 @@ pi install git:github.com/sebaxzero/pi-safe-search.git
 ```
 
 Add `-l` to either form to install project-locally (adds to `.pi/settings.json` only).
+
+No dependencies, no build step, nothing to configure — the tools are available as soon as it loads.
+
+## Tools
+
+**`web_search`** — Searches DuckDuckGo and returns titles, URLs, and snippets.
+
+Parameters:
+- `query` (required) — search query
+- `max_results` (optional) — number of results, default 5, max 10
+
+**`web_fetch`** — Fetches and extracts the text content of a URL.
+
+Parameters:
+- `url` (required) — must be http or https
 
 ## How it works
 
@@ -72,22 +86,17 @@ On every turn, a reminder is appended to the system prompt:
 
 A second sanitization pass also runs on every tool result via the `tool_result` hook, catching anything that slips through third-party code paths.
 
-## Tools
+## Commands
 
-**`web_search`** — Searches DuckDuckGo and returns titles, URLs, and snippets.
-
-Parameters:
-- `query` (required) — search query
-- `max_results` (optional) — number of results, default 5, max 10
-
-**`web_fetch`** — Fetches and extracts the text content of a URL.
-
-Parameters:
-- `url` (required) — must be http or https
+```
+/safe-search                 — show current status and config
+/safe-search set KEY=VAL     — override config for the current session only
+/safe-search save            — write the current config to safe-search.json
+```
 
 ## Configuration
 
-Persistent configuration lives in `extensions/safe-search.json` (auto-created on first load with defaults). You can ask the agent to edit it directly:
+Persistent configuration lives in `extensions/safe-search.json` next to the installed extension (auto-created on first load with defaults). You can ask the agent to edit it, or tune values live with `/safe-search set`.
 
 ```json
 {
@@ -99,41 +108,14 @@ Persistent configuration lives in `extensions/safe-search.json` (auto-created on
 |-----|---------|-------------|
 | `MAX_RESULTS` | `5` | Default number of search results returned by `web_search` (1–10) |
 
-Changes to the JSON take effect on the next session. For live tuning within a session, use the command below.
+## Compatibility
 
-## Command
-
-```
-/safe-search                 — show current status and config
-/safe-search set KEY=VAL     — override config for the current session only
-/safe-search save            — write the current config to safe-search.json
-```
+Shares its sanitization and SSRF model with [pi-browser-search](https://github.com/sebaxzero/pi-browser-search) — install both if you want cheap static fetch for most pages and a real browser reserved for JS-heavy ones.
 
 ## Dependencies
 
 None. No `node_modules`. No `package.json` dependencies. Uses only `node:dns/promises` (built into Node.js) for hostname resolution in SSRF checks.
 
-## Tests
-
-```bash
-node --test test.mjs
-```
-
-46 tests covering the sanitization pipeline (including evasion via zero-width
-characters, homoglyphs, fullwidth unicode, URL encoding, and base64), the
-SSRF ranges, and DuckDuckGo redirect unwrapping. Requires Node ≥ 22.18 (the
-suite imports the `.ts` sources directly via native type stripping). CI runs
-it on every push and pull request.
-
-## Releasing
-
-Bump `version` in `package.json`, commit, tag `vX.Y.Z`, and push the tag —
-the publish workflow runs the tests and publishes to npm.
-
 ## License
 
 MIT
-
----
-
-Built with [Claude](https://claude.ai).
